@@ -3,6 +3,8 @@ package com.acmebank.controller
 import com.acmebank.dto.AccountDTO
 import com.acmebank.dto.TransactionDTO
 import com.acmebank.entity.TransactionStatus
+import com.acmebank.exception.InvalidAccountException
+import com.acmebank.exception.InvalidTransferAmountException
 import com.acmebank.exception.ResourceNotFoundException
 import com.acmebank.service.AccountManagerService
 import com.ninjasquad.springmockk.MockkBean
@@ -87,9 +89,56 @@ class AccountManagerControllerUnitTest {
             .returnResult()
             .responseBody
 
-        Assertions.assertEquals(transaction,result)
+        Assertions.assertEquals(transaction, result)
     }
 
+    @Test
+    fun shouldThrowExceptionOnTransferWhenAccountIDsAreNotFoundInDatabase() {
+        val senderAccountId = "123"
+        val receiverAccountId = "888"
+        val amount = 1000.0
+
+        val transaction = TransactionDTO(senderAccountId, receiverAccountId, amount, TransactionStatus.SUCCESSFUL)
+
+        val error = "Invalid Account numbers provided"
+
+        every { accountManagerService.transferAmount(any()) } throws InvalidAccountException(error)
+
+        val result = webTestClient.put()
+            .uri("/v1/accounts/transfer")
+            .bodyValue(transaction)
+            .exchange()
+            .expectStatus().isBadRequest
+            .expectBody(String::class.java)
+            .returnResult()
+            .responseBody
+
+        Assertions.assertEquals(error, result)
+    }
+
+    @Test
+    fun shouldThrowExceptionOnTransferWhenSenderAndReceiverAccountIdsAreEqual() {
+        val senderAccountId = "12345678"
+        val receiverAccountId = "12345678"
+        val amount = 1000.0
+
+        val transaction = TransactionDTO(senderAccountId, receiverAccountId, amount, TransactionStatus.SUCCESSFUL)
+
+        val error = "Invalid Account numbers provided"
+
+        every { accountManagerService.transferAmount(any()) } throws InvalidAccountException(error)
+
+        val result = webTestClient.put()
+            .uri("/v1/accounts/transfer")
+            .bodyValue(transaction)
+            .exchange()
+            .expectStatus().isBadRequest
+            .expectBody(String::class.java)
+            .returnResult()
+            .responseBody
+
+        Assertions.assertEquals(error, result)
+    }
 
 
 }

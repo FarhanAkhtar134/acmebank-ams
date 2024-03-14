@@ -1,4 +1,3 @@
-# Configuration for Main Database
 spring:
   application:
     name: acmebank

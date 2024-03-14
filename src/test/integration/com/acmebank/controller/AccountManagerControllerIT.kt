@@ -4,7 +4,10 @@ import com.acmebank.dto.AccountDTO
 import com.acmebank.dto.TransactionDTO
 import com.acmebank.entity.Account
 import com.acmebank.entity.TransactionStatus
+import com.acmebank.exception.InvalidAccountException
+import com.acmebank.exception.InvalidTransferAmountException
 import com.acmebank.repository.AccountManagerRepository
+import io.mockk.every
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
@@ -81,4 +84,27 @@ class AccountManagerControllerIntgTest {
 
         Assertions.assertEquals(TransactionStatus.SUCCESSFUL, result!!.status)
     }
+
+    @Test
+    fun shouldThrowExceptionOnTransferWhenAccountIDsAreNotFoundInDatabase() {
+        val senderAccountId = "123"
+        val receiverAccountId = "888"
+        val amount = 1000.0
+
+        val transaction = TransactionDTO(senderAccountId, receiverAccountId, amount, TransactionStatus.SUCCESSFUL)
+
+        val error = "Invalid account numbers provided"
+
+        val result = webTestClient.put()
+            .uri("/v1/accounts/transfer")
+            .bodyValue(transaction)
+            .exchange()
+            .expectStatus().isBadRequest
+            .expectBody(String::class.java)
+            .returnResult()
+            .responseBody
+
+        Assertions.assertEquals(error, result)
+    }
+
 }
