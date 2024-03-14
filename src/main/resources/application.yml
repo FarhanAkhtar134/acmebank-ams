@@ -1,3 +1,4 @@
+# Configuration for Main Database
 spring:
   application:
     name: acmebank
@@ -16,3 +17,4 @@ spring:
   h2:
     console:
       enabled: true
+
