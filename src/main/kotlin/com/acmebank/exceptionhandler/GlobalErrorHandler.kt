@@ -22,6 +22,13 @@ class GlobalErrorHandler : ResponseEntityExceptionHandler() {
 
     }
 
+    @ExceptionHandler(IllegalArgumentException::class)
+    fun handleInvalidTransactionException(ex: Exception, request: WebRequest): ResponseEntity<Any> {
+        logger.error("Exception observed: ${ex.message}", ex)
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.message)
+
+    }
+
     @ExceptionHandler(Exception::class)
     fun handleAllExceptions(ex: Exception, request: WebRequest): ResponseEntity<Any> {
         logger.error("Exception observed: ${ex.message}", ex)
