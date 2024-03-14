@@ -1,6 +1,8 @@
 package com.acmebank.controller
 
 import com.acmebank.dto.AccountDTO
+import com.acmebank.dto.TransactionDTO
+import com.acmebank.entity.TransactionStatus
 import com.acmebank.exception.ResourceNotFoundException
 import com.acmebank.service.AccountManagerService
 import com.ninjasquad.springmockk.MockkBean
@@ -64,4 +66,30 @@ class AccountManagerControllerUnitTest {
         Assertions.assertNotNull(response)
 
     }
+
+
+    @Test
+    fun shouldTransferAmountBetweenAccounts() {
+        val senderAccountId = "12345678"
+        val receiverAccountId = "88888888"
+        val amount = 1000.0
+
+        val transaction = TransactionDTO(senderAccountId, receiverAccountId, amount, TransactionStatus.SUCCESSFUL)
+
+        every { accountManagerService.transferAmount(any()) } returns transaction
+
+        val result = webTestClient.put()
+            .uri("/v1/accounts/transfer")
+            .bodyValue(transaction)
+            .exchange()
+            .expectStatus().isOk
+            .expectBody(TransactionDTO::class.java)
+            .returnResult()
+            .responseBody
+
+        Assertions.assertEquals(transaction,result)
+    }
+
+
+
 }

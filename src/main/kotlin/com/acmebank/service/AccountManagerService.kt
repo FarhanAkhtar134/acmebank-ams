@@ -44,12 +44,17 @@ class AccountManagerService(val accountManagerRepository: AccountManagerReposito
         senderAccount: Optional<Account>,
         receiverAccount: Optional<Account>
     ): Nothing {
-        if (senderAccount.isEmpty || receiverAccount.isEmpty) {
+        if (accountsAreInvalid(senderAccount, receiverAccount)) {
             throw InvalidAccountException("Invalid account numbers provided")
         } else {
             throw InvalidTransferAmountException("Invalid transfer amount")
         }
     }
+
+    private fun accountsAreInvalid(
+        senderAccount: Optional<Account>,
+        receiverAccount: Optional<Account>
+    ) = senderAccount.isEmpty || receiverAccount.isEmpty || senderAccount.get().id == receiverAccount.get().id
 
     private fun performTransaction(
         senderAccount: Optional<Account>,
@@ -74,6 +79,9 @@ class AccountManagerService(val accountManagerRepository: AccountManagerReposito
         senderAccount: Optional<Account>,
         receiverAccount: Optional<Account>,
         transactionDTO: TransactionDTO
-    ) = senderAccount.isPresent && receiverAccount.isPresent && senderAccount.get().balance >= transactionDTO.amount
+    ) =
+        senderAccount.isPresent && receiverAccount.isPresent &&
+                senderAccount.get().id != receiverAccount.get().id &&
+                senderAccount.get().balance >= transactionDTO.amount
 
 }
