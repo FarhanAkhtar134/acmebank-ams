@@ -16,9 +16,16 @@ class GlobalErrorHandler : ResponseEntityExceptionHandler() {
     companion object : KLogging()
 
     @ExceptionHandler(ResponseStatusException::class)
-    fun handleResourceNotFoundException(ex: Exception, request: WebRequest) : ResponseEntity<Any> {
+    fun handleResourceNotFoundException(ex: Exception, request: WebRequest): ResponseEntity<Any> {
         logger.error("Exception observed: ${ex.message}", ex)
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.message)
+
+    }
+
+    @ExceptionHandler(Exception::class)
+    fun handleAllExceptions(ex: Exception, request: WebRequest): ResponseEntity<Any> {
+        logger.error("Exception observed: ${ex.message}", ex)
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.message)
 
     }
 

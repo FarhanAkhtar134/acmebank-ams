@@ -34,18 +34,5 @@ class AccountManagerControllerIntgTest {
         Assertions.assertEquals(accountDTO, result)
     }
 
-    @Test
-    fun shouldReturnResourceNotFoundGivenNonExistentAccountID() {
 
-        val accountId = 55555555
-
-        val result = webTestClient.get()
-            .uri("/v1/accounts/$accountId/balance")
-            .exchange()
-            .expectStatus().isOk
-            .expectBody(AccountDTO::class.java)
-            .returnResult()
-            .responseBody
-
-    }
 }

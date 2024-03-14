@@ -1,6 +1,7 @@
 package com.acmebank.controller
 
 import com.acmebank.dto.AccountDTO
+import com.acmebank.exception.ResourceNotFoundException
 import com.acmebank.service.AccountManagerService
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
@@ -40,6 +41,27 @@ class AccountManagerControllerUnitTest {
             .responseBody
 
         Assertions.assertEquals(accountDTO, result)
+
+    }
+
+    @Test
+    fun shouldReturnResourceNotFoundGivenNonExistentAccountID() {
+
+        val accountId = "55555555"
+
+        val errorMessage = "No Account found with the id $accountId"
+
+        every { accountManagerService.getAccountBalance(any()) } throws ResourceNotFoundException(errorMessage)
+
+        val response = webTestClient.get()
+            .uri("/v1/accounts/$accountId/balance")
+            .exchange()
+            .expectStatus().isNotFound
+            .expectBody(String::class.java)
+            .returnResult()
+            .responseBody
+
+        Assertions.assertNotNull(response)
 
     }
 }
